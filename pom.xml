@@ -14,24 +14,169 @@
   <url>http://www.example.com</url>
 
   <properties>
+      <junit.version>4.5</junit.version>
+      <spring.version>4.3.15.RELEASE</spring.version>
+      <mybatis.version>3.2.8</mybatis.version>
+      <mybatis.spring.version>1.2.2</mybatis.spring.version>
+      <mybatis.paginator.version>1.2.15</mybatis.paginator.version>
+      <mysql.version>5.1.32</mysql.version>
+      <slf4j.version>1.6.4</slf4j.version>
+      <jackson.version>2.4.2</jackson.version>
+      <druid.version>1.0.9</druid.version>
+      <jstl.version>1.2</jstl.version>
+      <servlet-api.version>2.5</servlet-api.version>
+      <jsp-api.version>2.0</jsp-api.version>
+      <joda-time.version>2.5</joda-time.version>
+      <commons-lang3.version>3.3.2</commons-lang3.version>
+      <commons-io.version>1.3.2</commons-io.version>
+      <commons-net.version>3.3</commons-net.version>
+      <jsqlparser.version>0.9.1</jsqlparser.version>
+      <commons-fileupload.version>1.3.1</commons-fileupload.version>
+      <jedis.version>2.7.2</jedis.version>
+      <activemq.version>5.11.2</activemq.version>
+      <quartz.version>2.2.2</quartz.version>
+      <slf4j.version>1.7.21</slf4j.version>
+      <log4j.version>1.2.12</log4j.version>
+      <solr.version>6.1.0</solr.version>
+      <fastjson.version>1.2.13</fastjson.version>
+      <diamond.version>0.0.1-SNAPSHOT</diamond.version>
+      <cors.filter>2.5</cors.filter>
+      <java.property.utils>1.10</java.property.utils>
+      <jackson.version>2.4.2</jackson.version>
+
+
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.7</maven.compiler.source>
-    <maven.compiler.target>1.7</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
 
   <dependencies>
-    <!-- https://mvnrepository.com/artifact/org.elasticsearch.client/transport -->
-    <dependency>
-      <groupId>org.elasticsearch.client</groupId>
-      <artifactId>transport</artifactId>
-      <version>6.1.1</version>
+      <dependency>
+          <groupId>org.elasticsearch.client</groupId>
+          <artifactId>transport</artifactId>
+          <version>6.1.1</version>
+      </dependency>
+
+
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.11</version>
+        <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.11</version>
-      <scope>test</scope>
-    </dependency>
+      <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>jcl-over-slf4j</artifactId>
+          <version>1.7.21</version>
+          <scope>runtime</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+          <version>1.7.21</version>
+      </dependency>
+      <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-log4j12 -->
+      <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-log4j12</artifactId>
+          <scope>runtime</scope>
+      </dependency>
+      <!-- https://mvnrepository.com/artifact/log4j/log4j -->
+      <dependency>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
+          <version>1.2.17</version>
+      </dependency>
+      <dependency>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+          <version>1.2</version>
+      </dependency>
+
+      <dependency>
+          <groupId>javax.servlet</groupId>
+          <artifactId>servlet-api</artifactId>
+          <version>2.5</version>
+          <scope>provided</scope>
+      </dependency>
+
+      <!-- spring dependencies -->
+      <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-core</artifactId>
+          <version>${spring.version}</version>
+          <!--<exclusions>-->
+          <!--<exclusion>-->
+          <!--<groupId>commons-logging</groupId>-->
+          <!--<artifactId>commons-logging</artifactId>-->
+          <!--</exclusion>-->
+          <!--</exclusions>-->
+      </dependency>
+      <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-test</artifactId>
+          <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-context</artifactId>
+          <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-context-support</artifactId>
+          <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-aop</artifactId>
+          <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-aspects</artifactId>
+          <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-tx</artifactId>
+          <version>${spring.version}</version>
+      </dependency>
+      <!-- https://mvnrepository.com/artifact/org.springframework/spring-jdbc -->
+      <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-jdbc</artifactId>
+          <version>${spring.version}</version>
+      </dependency>
+
+      <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-webmvc</artifactId>
+          <version>${spring.version}</version>
+      </dependency>
+      <!-- mysql dependencies -->
+      <dependency>
+          <groupId>mysql</groupId>
+          <artifactId>mysql-connector-java</artifactId>
+          <version>5.1.32</version>
+      </dependency>
+      <!-- https://mvnrepository.com/artifact/com.thetransactioncompany/cors-filter -->
+      <dependency>
+          <groupId>com.thetransactioncompany</groupId>
+          <artifactId>cors-filter</artifactId>
+          <version>${cors.filter}</version>
+      </dependency>
+      <!-- https://mvnrepository.com/artifact/com.thetransactioncompany/java-property-utils -->
+      <dependency>
+          <groupId>com.thetransactioncompany</groupId>
+          <artifactId>java-property-utils</artifactId>
+          <version>${java.property.utils}</version>
+      </dependency>
+      <dependency>
+          <groupId>com.alibaba</groupId>
+          <artifactId>fastjson</artifactId>
+          <version>${fastjson.version}</version>
+      </dependency>
   </dependencies>
 
   <build>
