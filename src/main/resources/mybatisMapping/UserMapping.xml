@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE  mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="BlogUser">
+    <resultMap id="blogUserMap" type="com.bean.BlogUser">
+        <id property="openid" column="openid"></id>
+        <result property="birthday" column="birthday"></result>
+        <result property="userName" column="userName"></result>
+        <result property="email" column="email"></result>
+        <result property="nick" column="nick"></result>
+        <result property="regtime" column="regtime"></result>
+        <result property="sex" column="sex"></result>
+        <result property="location" column="location"></result>
+        <result property="homepage" column="homepage"></result>
+        <result property="isvip" column="isvip"></result>
+        <result property="userLevel" column="userLevel"></result>
+        <result property="fansnum" column="fansnum"></result>
+        <result property="favnum" column="favnum"></result>
+        <result property="tweetnum" column="tweetnum"></result>
+        <result property="tag" column="tag"></result>
+        <result property="latAndlon" column="latAndlon"></result>
+    </resultMap>
+
+    <sql id="blogUser.columns">
+        <![CDATA[
+          email,
+          userName,
+          nick,
+          openid,
+          regtime,
+          sex,
+          location,
+          homepage,
+          isvip,
+          userLevel,
+          fansnum,
+          favnum,
+          tweetnum,
+          tag,
+          latAndlon
+        ]]>
+    </sql>
+
+    <insert id="insert" parameterType="com.bean.BlogUser">
+         insert into bolguser_tb (
+          <include refid="blogUser.columns"></include>
+         ) values (
+            #{email},
+            #{userName},
+            #{nick},
+            #{openid},
+            #{regtime},
+            #{sex},
+            #{location},
+            #{homepage},
+            #{isvip},
+            #{userLevel},
+            #{fansnum},
+            #{favnum},
+            #{tweetnum},
+            #{tag},
+            #{latAndlon}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.bean.BlogUser">
+        update  bolguser_tb set   where
+    </update>
+
+    <delete id="delete" parameterType="int">
+
+    </delete>
+
+    <select id="selectById" parameterType="int">
+
+    </select>
+
+    <select id="selectAll" resultMap="blogUserMap">
+        select * from bolguser_tb
+    </select>
+
+</mapper>
