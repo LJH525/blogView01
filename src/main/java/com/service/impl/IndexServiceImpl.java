@@ -44,18 +44,19 @@ public class IndexServiceImpl implements IndexService {
         for (int i = 0; i <listFiles.length ; i++) {
             File tempFile = listFiles[i];
             if(tempFile.isFile() && tempFile.toURI().toString().contains("info.xml")) {//处理用户个人信息记录
-               /* BlogUser blogUser = docUserXMLParse(tempFile);
+                BlogUser blogUser = docUserXMLParse(tempFile);
                 //构建数据库用户表,插入用户数据
                 System.out.println(session.insert("BlogUser.insert" ,blogUser));
                 //此处没有做事务处理
                 session.commit();
-                System.out.println(tempFile.getName());*/
+                System.out.println(tempFile.getName());
             }else if(tempFile.isFile() && tempFile.toURI().toString().endsWith(".xml")){//处理用户帖子记录
                 System.out.println(tempFile.getName()+"l");
-                IndexRequestBuilder req = client.getTransClient().prepareIndex("blogview01","blog");
+                IndexRequestBuilder req = client.getTransClient().prepareIndex("blogview02","blog");
                 docXMLParse(tempFile, req );
 
             }else if(tempFile.isDirectory()){
+                System.out.println(tempFile.getAbsolutePath());
                 initIndex(tempFile.getAbsolutePath());
             }
         }
@@ -117,7 +118,7 @@ public class IndexServiceImpl implements IndexService {
                         .endObject()
                 ).get();
                 //测试代码
-                System.out.println("openidList:" + openidList.get(i).getText());
+                /*System.out.println("openidList:" + openidList.get(i).getText());
                 System.out.println(textList.get(i).getText());
                 System.out.println(origtextList.get(i).getText());
                 System.out.println(nickList.get(i).getText());
@@ -131,7 +132,7 @@ public class IndexServiceImpl implements IndexService {
                 System.out.println(countryCodeList.get(i).getText());
                 System.out.println(locationList.get(i).getText());
                 System.out.println(longitudeList.get(i).getText());
-                System.out.println(latitudeList.get(i).getText());
+                System.out.println(latitudeList.get(i).getText());*/
             }
         } catch (DocumentException e) {
             e.printStackTrace();
@@ -159,14 +160,24 @@ public class IndexServiceImpl implements IndexService {
             List<Node> birth_yearList = document.selectNodes("/root/data/birth_year");//出生的年
             String birthday = birth_yearList.get(0).getText()+"-"+birth_monthList.get(0).getText()+"-"+birth_dayList.get(0).getText();
             if(birthday.equals("0-0-0")){
-                birthday ="1000-01-01";
+                birthday ="1000-01-01 00:00:00";
+            }else if(birthday.length()>19) {
+                birthday = birthday.substring(0,19);
             }
             List<Node> emailList = document.selectNodes("/root/data/email");//邮箱
             List<Node> nameList = document.selectNodes("/root/data/name");//姓名
             List<Node> nickList = document.selectNodes("/root/data/nick");//昵称
             List<Node> openidList = document.selectNodes("/root/data/openid");//用户唯一标示
             List<Node> regtimeList = document.selectNodes("/root/data/regtime");//注册时间
-            long regtime = Long.parseLong(regtimeList.get(0).getText());
+            long regtime = 0;
+            try {
+                if(regtimeList.size() > 0){
+                    String str = regtimeList.get(0).getText();
+                    regtime  = Long.parseLong(str);
+                }
+            }catch (Exception e){
+                System.out.println("regtimeList: "+ regtimeList.get(0).getText() );
+            }
             List<Node> sexList = document.selectNodes("/root/data/sex");//性别
             List<Node> locationList = document.selectNodes("/root/data/location");//地点
             List<Node> homepageList = document.selectNodes("/root/data/homepage");//用户首页URL

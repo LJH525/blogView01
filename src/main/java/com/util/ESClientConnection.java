@@ -31,16 +31,16 @@ public class ESClientConnection {
             XContentBuilder mappings = XContentFactory.jsonBuilder()
                     .startObject()
                         .startObject("settings")
-                            .field("number_of_shards",2)
-                            .field("number_of_replicas",1)
+                            .field("number_of_shards",5)
+                            .field("number_of_replicas",2)
                          .endObject()
                         .startObject("mappings")
                             .startObject("blog")
                             .startObject("properties")
-                                .startObject("blogOpendId").field("type","text").field("store",true).endObject()
-                                .startObject("blogText").field("type","text").field("store",true).field("analyzer","ik_max_word").endObject()
-                                .startObject("blogOrigtext").field("type","text").field("store",true).field("analyzer","ik_max_word").endObject()
-                                .startObject("blogNick").field("type","text").field("store",false).endObject()
+                                .startObject("blogOpendId").field("type","keyword").field("store",true).endObject()
+                                .startObject("blogText").field("type","text").field("store",true).field("analyzer","ik_smart").field("search_analyzer","ik_smart").field("index",true).endObject()
+                                .startObject("blogOrigtext").field("type","text").field("store",true).field("analyzer","ik_smart").endObject()
+                                .startObject("blogNick").field("type","keyword").field("store",true).endObject()
                                 .startObject("blogTimestamp").field("type","date").field("store",true).endObject()
                                 .startObject("blogSelf").field("type","boolean").field("store",true).endObject()
                                 .startObject("blogType").field("type","integer").field("store",true).endObject()
@@ -49,13 +49,13 @@ public class ESClientConnection {
                                 .startObject("blogCount").field("type","long").field("store",true).endObject()
                                 .startObject("blogCitycode").field("type","short").field("store",true).endObject()
                                 .startObject("blogCountrycode").field("type","short").field("store",true).endObject()
-                                .startObject("blogLocation").field("type","text").field("store",true).endObject()
+                                .startObject("blogLocation").field("type","keyword").field("store",true).endObject()
                                 .startObject("blogLat_lon").field("type","geo_point").field("store",true).endObject()
                             .endObject()
                             .endObject()
                         .endObject()
                     .endObject();
-               client.admin().indices().prepareCreate("blogview01").setSource(mappings).get();
+               client.admin().indices().prepareCreate("blogview02").setSource(mappings).get();
 //                client.prepareIndex("blogview01","blog")
 //                        .setSource(mappings).get();
 ////            System.out.println(rs.isAcknowledged());

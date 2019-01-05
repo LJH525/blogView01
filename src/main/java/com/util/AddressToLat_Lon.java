@@ -14,6 +14,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 /*
     根据城市名获取经纬度，
@@ -21,6 +22,7 @@ import java.util.List;
 **/
 public class AddressToLat_Lon {
 
+    private static HashMap<String,String> map = new HashMap<>();
     private static final String URL="https://restapi.amap.com/v3/geocode/geo";
     public static String  getLatAndLon(String address){
         System.out.println("address:"+address);
@@ -29,32 +31,39 @@ public class AddressToLat_Lon {
             return latitudeAndLongitude;
         }
         CloseableHttpClient sc = HttpClients.createDefault();
-        try {
-            List<NameValuePair> list =new ArrayList();
-            list.add(new BasicNameValuePair("address",address));
-            list.add(new BasicNameValuePair("output","JSON"));
-            list.add(new BasicNameValuePair("key","9d265b7bb78a66a7383505f94fbf3e3d"));
-            UrlEncodedFormEntity ue = new UrlEncodedFormEntity(list,"utf-8");
-            HttpPost pos = new HttpPost(URL);
-            pos.setEntity(ue);
-            CloseableHttpResponse rs = sc.execute(pos);
-            HttpEntity et =  rs.getEntity();
-            String json = EntityUtils.toString(et,"utf-8");
-            JSONArray jsonArray = (JSONArray) JSON.parseObject(json).get("geocodes");
-            if(jsonArray.size()>0){
-                Object ob =  ((JSONObject)(jsonArray).get(0)).get("location");
-                System.out.println( ob);
-                latitudeAndLongitude = ob!=null ? ob.toString() : null;
-            }else{
-                latitudeAndLongitude = "0,0";
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }finally {
+        if(map.containsKey(address)){
+            latitudeAndLongitude = map.get(address);
+        }else{
+            try {
+                List<NameValuePair> list =new ArrayList();
+                list.add(new BasicNameValuePair("address",address));
+                list.add(new BasicNameValuePair("output","JSON"));
+                //  9d265b7bb78a66a7383505f94fbf3e3d
+                list.add(new BasicNameValuePair("key","423ef772d4dfdc15a74696cc4bee4caa"));
+                UrlEncodedFormEntity ue = new UrlEncodedFormEntity(list,"utf-8");
+                HttpPost pos = new HttpPost(URL);
+                pos.setEntity(ue);
+                CloseableHttpResponse rs = sc.execute(pos);
+                HttpEntity et =  rs.getEntity();
+                String json = EntityUtils.toString(et,"utf-8");
+                JSONArray jsonArray = (JSONArray) JSON.parseObject(json).get("geocodes");
+                if(jsonArray.size()>0){
+                    Object ob =  ((JSONObject)(jsonArray).get(0)).get("location");
+                    System.out.println( ob);
+                    latitudeAndLongitude = ob!=null ? ob.toString() : null;
 
+                }else{
+                    latitudeAndLongitude = "0,0";
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }finally {
+
+            }
+            String [] point = latitudeAndLongitude.split(",");
+            latitudeAndLongitude = point[1]+","+point[0];
+            map.put(address,latitudeAndLongitude);
         }
-        String [] point = latitudeAndLongitude.split(",");
-        latitudeAndLongitude = point[1]+","+point[0];
         return latitudeAndLongitude;
     }
 }

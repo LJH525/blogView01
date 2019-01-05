@@ -11,7 +11,7 @@ public class IndexServiceImplTest {
 
     @Test
     public void initIndex(){
-        new IndexServiceImpl().initIndex("D:\\postgrudationPoject\\blogDataset\\post1");
+        new IndexServiceImpl().initIndex("E:\\BaiduNetdiskDownload\\post1");
     }
 
   /*  @Test

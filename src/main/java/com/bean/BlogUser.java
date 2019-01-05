@@ -1,9 +1,10 @@
 package com.bean;
 
+import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Timestamp;
 
-public class BlogUser {
+public class BlogUser implements Serializable {
 
      private Date birthday;
      private String email;
@@ -69,6 +70,11 @@ public class BlogUser {
     }
 
     public void setRegtime(Timestamp regtime) {
+
+       /* if(str.length()>19) {
+            System.out.println("str"+str);
+            str = str.substring(0,19);
+        }*/
         this.regtime = regtime;
     }
 
