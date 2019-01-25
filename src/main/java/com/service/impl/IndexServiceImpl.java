@@ -28,28 +28,39 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class IndexServiceImpl implements IndexService {
 
     //自动注入，Es的连接对象
     //@Autowired
-    private ESClientConnection client = new ESClientConnection() ;
-    private BigInteger indexCount = BigInteger.valueOf(0);
+    private static ESClientConnection client = new ESClientConnection() ;
+    private static AtomicLong indexCount = new AtomicLong(0);
 
-    public void initIndex(String filePath){
+    public static void initIndex(File listFiles[] ){
         //语料的存储路径
-        File file = new File(filePath);
-        File listFiles[] = file.listFiles();
+      /*  File file = new File(filePath);
+        File listFiles[] = file.listFiles();*/
+        BlogUser blogUser = null;
         SqlSession session =  DBUtils.getSqlSession();
         for (int i = 0; i <listFiles.length ; i++) {
             File tempFile = listFiles[i];
             if(tempFile.isFile() && tempFile.toURI().toString().contains("info.xml")) {//处理用户个人信息记录
-                BlogUser blogUser = docUserXMLParse(tempFile);
                 //构建数据库用户表,插入用户数据
-                System.out.println(session.insert("BlogUser.insert" ,blogUser));
-                //此处没有做事务处理
-                session.commit();
-                System.out.println(tempFile.getName());
+                try{
+                    blogUser = docUserXMLParse(tempFile);
+                    if(blogUser == null){
+                        continue;
+                    }
+                    System.out.println( session.insert("BlogUser.insert" ,blogUser));
+                    session.commit();
+                }catch (Exception e){
+                    //此处没有做事务处理
+                    System.out.println(tempFile.getName());
+                    session.rollback();
+                    e.printStackTrace();
+                    continue;
+                }
             }else if(tempFile.isFile() && tempFile.toURI().toString().endsWith(".xml")){//处理用户帖子记录
                 System.out.println(tempFile.getName()+"l");
                 IndexRequestBuilder req = client.getTransClient().prepareIndex("blogview02","blog");
@@ -57,7 +68,7 @@ public class IndexServiceImpl implements IndexService {
 
             }else if(tempFile.isDirectory()){
                 System.out.println(tempFile.getAbsolutePath());
-                initIndex(tempFile.getAbsolutePath());
+                initIndex(tempFile.listFiles());
             }
         }
     }
@@ -65,7 +76,7 @@ public class IndexServiceImpl implements IndexService {
     /*
     * 微博帖子信息处理
     * */
-    public  void docXMLParse(File file,IndexRequestBuilder req  ) {
+    public static  void docXMLParse(File file,IndexRequestBuilder req  ) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SAXReader reader = new SAXReader();
         try {
@@ -88,8 +99,8 @@ public class IndexServiceImpl implements IndexService {
             List<Node> latitudeList = document.selectNodes("/root/data/info/latitude");//微博维度
 
             for (int i = 0; i < openidList.size(); i++) {
-                indexCount = indexCount.add(BigInteger.valueOf(1));
-                System.out.println("indexCount.add(BigInteger.valueOf(1)" + indexCount.toString());
+                long tempId = indexCount.incrementAndGet();
+                System.out.println("indexCount.add(BigInteger.valueOf(1)" + String.valueOf(tempId));
 //                client.getTransClient().prepareIndex("blogview01","blog",(i+1)+"")
 
                 String  blogLat_lon = (latitudeList.get(i).getText()==null ? "0":latitudeList.get(i).getText()) + ","
@@ -99,7 +110,7 @@ public class IndexServiceImpl implements IndexService {
                 if("0,0".equals(blogLat_lon)){
                     blogLat_lon = AddressToLat_Lon.getLatAndLon(location);
                 }
-                req.setId(indexCount.toString()).setSource(XContentFactory.jsonBuilder().startObject()
+                req.setId(String.valueOf(tempId)).setSource(XContentFactory.jsonBuilder().startObject()
                         .field("blogOpendId", openidList.get(i).getText())
                         .field("blogText", textList.get(i).getText())
                         .field("blogOrigtext", origtextList.get(i).getText())
@@ -148,7 +159,7 @@ public class IndexServiceImpl implements IndexService {
     /*
     * 微博用户信息处理
     * */
-    public  BlogUser  docUserXMLParse(File file){
+    public static BlogUser  docUserXMLParse(File file){
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SAXReader reader = new SAXReader();
         Document document = null;
@@ -158,11 +169,12 @@ public class IndexServiceImpl implements IndexService {
             List<Node> birth_dayList = document.selectNodes("/root/data/birth_day");//出生的天
             List<Node> birth_monthList = document.selectNodes("/root/data/birth_month");//出生的月
             List<Node> birth_yearList = document.selectNodes("/root/data/birth_year");//出生的年
-            String birthday = birth_yearList.get(0).getText()+"-"+birth_monthList.get(0).getText()+"-"+birth_dayList.get(0).getText();
+            String birthday = "1000-01-01 00:00:00";
+            if(birth_yearList.size() > 0&& birth_dayList.size()>0&&birth_monthList.size() > 0){
+                birthday = birth_yearList.get(0).getText()+"-"+birth_monthList.get(0).getText()+"-"+birth_dayList.get(0).getText();
+            }
             if(birthday.equals("0-0-0")){
                 birthday ="1000-01-01 00:00:00";
-            }else if(birthday.length()>19) {
-                birthday = birthday.substring(0,19);
             }
             List<Node> emailList = document.selectNodes("/root/data/email");//邮箱
             List<Node> nameList = document.selectNodes("/root/data/name");//姓名
@@ -182,7 +194,7 @@ public class IndexServiceImpl implements IndexService {
             List<Node> locationList = document.selectNodes("/root/data/location");//地点
             List<Node> homepageList = document.selectNodes("/root/data/homepage");//用户首页URL
             String homepage="http://t.qq.com/";
-            if(homepageList.get(0).getText()==null){
+            if( homepageList.size() < 1 || homepageList.get(0).getText()==null){
                 String urlStr =  file.getAbsolutePath();
                 int end =  urlStr.lastIndexOf("\\");
                 int start  = urlStr.substring(1,urlStr.lastIndexOf("\\")).lastIndexOf("\\");
@@ -221,8 +233,10 @@ public class IndexServiceImpl implements IndexService {
 
         } catch (DocumentException e) {
             e.printStackTrace();
+            return null;
         } catch (ParseException e) {
             e.printStackTrace();
+            return null;
         }
         return blogUser;
 
@@ -275,7 +289,7 @@ public class IndexServiceImpl implements IndexService {
     /*
     * 递归解析xml元素，返回Map对象
     * */
-    private void parseXMLEle(Element root , Map map ){
+    private static void parseXMLEle(Element root , Map map ){
 
         List<Element> data = root.elements();
         if(data.size() > 0){
